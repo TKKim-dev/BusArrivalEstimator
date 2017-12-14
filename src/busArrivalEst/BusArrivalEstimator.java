@@ -1,4 +1,5 @@
 package busArrivalEst;
+import java.awt.Toolkit;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class BusArrivalEstimator {
 	static ArrayList<String> busID; // 버스 정보(버스 식별자)를 저장하는 어레이리스트.
 	static ArrayList<String> busSeq; // 버스 정보(버스 위치)를 저장하는 어레이리스트.
 	static String userRouteName; // 사용자가 입력한 노선 이름
-    static String userRouteID = null; // 사용자의 노선 번호. -1의 값이면 아직 설정이 안된 상태.
+    static String userRouteID = "-1"; // 사용자의 노선 번호. -1의 값이면 아직 설정이 안된 상태.
     static ArrayList<String> userRouteStationArray = new ArrayList<String>(); // 사용자가 입력한 노선에 대한 정류소 순서
     static boolean shouldShowDefaultMenu = true; // 기본 메뉴(showMenu(0))를 표시할지의 여부.
     static Timer requestTimer;
@@ -25,23 +26,15 @@ public class BusArrivalEstimator {
     static ArrayList<Double> resultArrayList;
     static HashMap<String, String> userRouteStationMap = new HashMap<String, String>();
 	static boolean isSeoulBus;
-	
+    static Toolkit toolkit = Toolkit.getDefaultToolkit();
+    
 	public static void main(String[] args) {
     	while(true) {
-    		try {
-    			//userRouteName = "5511";
-    			//HTTPRequester.routeID = 223000128;
-				//RouteInfo.loadRouteIDNMInfo(routeInfo);
-    			//rq.setURL("http://m.bus.go.kr/mBus/bus/getRouteAndPos.bms");
-    			//System.out.println(rq.sendRequest("" + RouteInfo.searchRouteID(userRouteName), userRouteName));
-    			//System.out.println(HTTPRequester.getResponse());
-    		} catch(Exception e) {
-    			e.printStackTrace();
-    		}
     		if(shouldShowDefaultMenu) showMenu(0);
     		try {
     			selection = Integer.parseInt(inputByUser());
     		} catch(NumberFormatException nfe) {
+    			toolkit.beep();
     			System.out.println("");
     			System.out.println("다시 입력해주세요:");
     			continue;
@@ -101,6 +94,7 @@ public class BusArrivalEstimator {
     			case 2 :
     				clearScreen();
     				if(userRouteID.equals("-1")) {
+    					toolkit.beep();
     					System.out.println("※※※현재 입력된 노선 번호가 존재하지 않습니다. 다시 메뉴로 돌아가 노선 번호를 입력해주세요!※※※");
     					System.out.println("");
     					System.out.println("엔터를 입력하면 처음으로 돌아갑니다.");
@@ -133,7 +127,6 @@ public class BusArrivalEstimator {
 //////////////////////// 조회 모드. 숫자 2개를 입력해서.. ////////////////////////////////////////////////    				
     			case 3 :
     				clearScreen();
-    				HTTPRequester.getResponse();
 					showMenu(3);
 					int station1Num, station2Num;
     				if(!inputByUser().equalsIgnoreCase("y")) {
@@ -144,9 +137,12 @@ public class BusArrivalEstimator {
     				
     				resultArrayList = new ArrayList<Double>();
     				int i = 0;
-					for(String str : userRouteStationArray) {
-						System.out.println(++i + ":  " + str);
-					}
+					if(isSeoulBus) 
+						for(; i < userRouteStationMap.size();) 
+							System.out.println(++i + "번째 정류소 이름 : " + userRouteStationMap.get("" + i));
+					else
+						for(String str : userRouteStationArray) 
+							System.out.println(++i + ":  " + str);
     				System.out.println("");
 					System.out.println("위의 노선에 해당하는 정류소 번호 2개를 띄어쓰기로 구분하여 입력해주세요:");
 					System.out.println("			(예: 1 15)");
@@ -158,6 +154,7 @@ public class BusArrivalEstimator {
     					station2Num = Integer.parseInt(s2);
     					scan.close();
     				} catch(Exception e) {
+    					toolkit.beep();
     					System.out.println("잘못된 입력입니다. 다시 처음으로 돌아갑니다.");
     					shouldShowDefaultMenu = true;
     					break;
@@ -204,6 +201,13 @@ public class BusArrivalEstimator {
     				}
     				// ArrayList -> Double -> double 형변환.
     				double[] result = ArrayUtils.toPrimitive(resultArrayList.toArray(new Double[resultArrayList.size()]));
+    				if(result.length == 0) {
+        				toolkit.beep();
+        				System.out.println("오류! 조회된 데이터가 없습니다. 엔터를 눌러 다시 돌아갑니다.");
+        				pause();
+        				shouldShowDefaultMenu = true;
+        				break;
+    				}
     				System.out.println("평균값: " + ArraySummary.mean(result) + " ms");
     				System.out.println("");
     				System.out.println("표준편차: " + ArraySummary.stdDev(ArraySummary.variance(result))+ " ms");
@@ -217,9 +221,9 @@ public class BusArrivalEstimator {
 					shouldShowDefaultMenu = true;
 					break;
     			default:
+    				toolkit.beep();
     				System.out.println("다시 입력해주세요.");
     				shouldShowDefaultMenu = true;
-    				System.exit(0);
     		}
     	}
     }

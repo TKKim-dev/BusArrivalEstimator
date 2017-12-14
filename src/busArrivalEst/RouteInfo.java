@@ -119,7 +119,7 @@ public class RouteInfo {
 	// 노선 이름을 검색하여 노선 ID를 리턴. 찾는 값이 없으면 -1 리턴.
 	public static String searchRouteID(String routeName) {
 		for(int i = 0; i < 3130; i++) 
-			if(BusArrivalEstimator.routeInfo[i][1].equalsIgnoreCase((routeName))) 
+			if(BusArrivalEstimator.routeInfo[i][1].equalsIgnoreCase(routeName)) 
 				return BusArrivalEstimator.routeInfo[i][0];
 		return "-1";
 	}

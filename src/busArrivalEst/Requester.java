@@ -1,9 +1,6 @@
 package busArrivalEst;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
@@ -18,7 +15,7 @@ public class Requester {
 	static URLConnection uc;
 	static String sUrl; // URL 주소
     static int routeID; // 사용자가 입력하는 노선 ID
-    
+    static SimpleDateFormat simpleDateFormat = new SimpleDateFormat ( "yyyy.MM.dd HH:mm:ss", Locale.KOREA );
     void setURL(String sUrl) throws Exception{
     	this.sUrl = sUrl;
     	url = new URL(sUrl);
@@ -40,7 +37,8 @@ class TOPISRequester extends Requester {
     		uc.setDoOutput(true);
     		String parameter = URLEncoder.encode("busRouteId", "UTF-8") + "=" + URLEncoder.encode(userRouteID, "UTF-8");
             StringBuffer sb = new StringBuffer();
-    		OutputStreamWriter wr = new OutputStreamWriter(uc.getOutputStream());
+    		String result;
+            OutputStreamWriter wr = new OutputStreamWriter(uc.getOutputStream());
     		wr.write(parameter);
     		wr.flush();
     		
@@ -50,6 +48,16 @@ class TOPISRequester extends Requester {
     			sb.append(line);
     		}
     		br.close();
+    		result = sb.toString();
+            if(result.contains("resultList")) {
+            	System.out.println("\n\n" + simpleDateFormat.format(new Date(System.currentTimeMillis())) 
+            			+ "초의 시각에 성공적으로 데이터 수신.");
+                return result;
+            } else {
+            	System.out.println(simpleDateFormat.format(new Date(System.currentTimeMillis()))
+            			+ "초의 시각에 오류 발생. 서버로부터 온 메시지: "
+            			+ result);
+            }
     		return sb.toString();
     	}catch(Exception e) {
     		e.printStackTrace();

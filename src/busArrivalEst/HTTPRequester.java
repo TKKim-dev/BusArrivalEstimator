@@ -37,22 +37,13 @@ public class HTTPRequester {
                 sb.append(line);
             }
             br.close();
-            
-            /* 글자가 깨지던 부분의 코드
-             * url = new URL(sUrl + "?" + "serviceKey" + "=" + serviceKey
-        			+ "&" + "routeId" + "=" + routeID);
-    		uc = url.openConnection();
-            while((len = uc.getInputStream().read(buf, 0, buf.length)) != -1) {
-                sb.append(new String(buf, 0, len));
-            }*/
-            
     		result = sb.toString();
             if(result.contains("<resultCode>0")) {
             	System.out.println("\n\n" + simpleDateFormat.format(new Date(System.currentTimeMillis())) 
             			+ "초의 시각에 성공적으로 데이터 수신.");
-            	System.out.println(result);
                 return result;
             } else {
+            	BusArrivalEstimator.toolkit.beep();
             	System.out.println(simpleDateFormat.format(new Date(System.currentTimeMillis()))
             			+ "초의 시각에 오류 발생. 서버로부터 온 메시지: "
             			+ result.split("<resultMessage>")[1].split("</resultMessage>")[0]);
@@ -67,29 +58,6 @@ public class HTTPRequester {
     	try {
     		URL url = new URL("http://m.bus.go.kr/mBus/bus/getRouteAndPos.bms");
     		URLConnection uc = url.openConnection();
-    		/*con.setRequestProperty("Accept-Language",  "ko-KR,ko;q=0.8,en-US;q=0.6,en;q=0.4");
-    		con.setRequestProperty("Accept-Encoding", "gzip, deflate");
-    		con.setRequestProperty("Host", "http://m.bus.go.kr");
-    		con.setRequestProperty("Content-Length", "20");
-    		con.setRequestProperty("Accept", "application/json, text/javascript, *//*; q=0.01");
-    		con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8;");
-    		con.setRequestProperty("Referer", "http://m.bus.go.kr/mBus/index.bms");
-    		con.setRequestProperty("Cookie", "WMONID=jCb09lXmafX; JSESSIONID=4AQsKh1i06w9F0bsXOTs76RpoUacslhGw8bZwzgmACjbYsfZMklNWNHwZW1hKbaC.tbms-info2_servlet_Mobile");
-    		
-    		*/
-    		//uc.setRequestProperty("Accept-Language",  "ko-KR,ko;q=0.8,en-US;q=0.6,en;q=0.4");
-    		//uc.setRequestProperty("Accept-Encoding", "gzip, deflate");
-    		//uc.setRequestProperty("Host", "http://m.bus.go.kr");
-    		//uc.setRequestProperty("Connection", "keep-alive");
-    		//uc.setRequestProperty("Content-Length", "20");
-    		//uc.setRequestProperty("Origin", "http://m.bus.go.kr");
-    		//uc.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-    		//uc.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36");
-    		//uc.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8;");
-    		//uc.setRequestProperty("Accept", "application/json, text/javascript, */*; q=0.01");
-    		//uc.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8;");
-    		//uc.setRequestProperty("Referer", "http://m.bus.go.kr/mBus/bus.bms?search=5511");
-    		//uc.setRequestProperty("Cookie", "WMONID=jCb09lXmafX; c_button=0; c_longvalue=126.97387963; c_latvalue=37.56481915; JSESSIONID=k6gJDl7arWeXLrb9tzqTfkFsXA72q3saCI3FTITIAK0xrYyFMQPPiYahFce8Q6o1.tbms-info2_servlet_Mobile");
     		uc.setDoOutput(true);
     		String parameter = URLEncoder.encode("busRouteId", "UTF-8") + "=" + URLEncoder.encode(userRouteID, "UTF-8");
     		OutputStreamWriter wr = new OutputStreamWriter(uc.getOutputStream());
@@ -111,49 +79,8 @@ public class HTTPRequester {
     	} catch(Exception e) {
     		e.printStackTrace();
     	}
-    	/*
-    	 * HttpClient httpClient = HttpClients.createDefault();
-    	HttpPost httpPost = new HttpPost("http://m.bus.go.kr/mBus/bus/getRouteAndPos.bms");
-
-    	// Request parameters and other properties.
-    	//List<NameValuePair> params = new ArrayList<NameValuePair>();
-    	httpPost.setHeader("Host: ", "http://m.bus.go.kr");
-    	httpPost.setHeader("Connection", "keep-alive");
-    	httpPost.setHeader("Content-Length", "20");
-    	httpPost.setHeader("Accept", "application/json, text/javascript, *//*; q=0.01");
-    	httpPost.setHeader("Origin", "http://m.bus.go.kr");
-    	httpPost.setHeader("X-Requested-With", "XMLHttpRequest");
-    	httpPost.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36");
-    	httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8;");
-    	httpPost.setHeader("Referer", "http://m.bus.go.kr/mBus/bus.bms?search=" + userRouteName);
-    	httpPost.setHeader("Accept-Encoding", "gzip, deflate");
-    	httpPost.setHeader("Accept-Language", "ko-KR,ko;q=0.8,en-US;q=0.6,en;q=0.4");
-    	httpPost.setHeader("Cookie", "WMONID=jCb09lXmafX; JSESSIONID=4AQsKh1i06w9F0bsXOTs76RpoUacslhGw8bZwzgmACjbYsfZMklNWNHwZW1hKbaC.tbms-info2_servlet_Mobile");
-
-
-    	//Execute and get the response.
-        StringBuffer sb = new StringBuffer();
-        String result;
-        try {
-        	httpPost.setEntity(new ByteArrayEntity(("busRouteId=" + userRouteID).getBytes("UTF-8"))); // 본문!
-        	HttpResponse response = httpClient.execute(httpPost);
-        	HttpEntity entity = response.getEntity();
-        	if (entity != null) {
-        		BufferedReader br = new BufferedReader(new InputStreamReader(entity.getContent(), "EUC-KR"));
-        		String line;
-        		while((line = br.readLine()) != null) {
-        			sb.append(line);
-        		}
-        		br.close();
-        	}
-        } catch(Exception e) {
-        	e.printStackTrace();
-        }
-    	result = sb.toString();
-    	System.out.println(result);
-    	return result;
-    	*/
     }
+    
     // 서버로부터 온 응답을 해석하고 파싱하는 메서드. 현재 운행중인 버스에 대한 정보를 담은 busID, busSeq 어레이리스트에 저장.
     public static void parseResponse(String response, ArrayList<String> busID, ArrayList<String> busSeq) {
     	if(response.equals("ERROR")) return;
