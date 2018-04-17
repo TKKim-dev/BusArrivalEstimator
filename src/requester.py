@@ -13,10 +13,10 @@ def get_response(is_seoul_bus, routeId):
             'serviceKey': '1234567890',
             'routeId': routeId
         }
-		try:
-			response = requests.get("http://openapi.gbis.go.kr/ws/rest/buslocationservice", params=params)
-		except:
-			print(time.strftime("%Y-%m-%d %H:%M:%S]", "Connection Time Out. Sleeping for 30 minutes"))
-			time.sleep(1800)
-			return ''
+        try:
+            response = requests.get("http://openapi.gbis.go.kr/ws/rest/buslocationservice", params=params)
+        except:
+            print(time.strftime("%Y-%m-%d %H:%M:%S]", "Connection Time Out. Sleeping for 30 minutes"))
+            time.sleep(1800)
+            return ''
         return response.text
